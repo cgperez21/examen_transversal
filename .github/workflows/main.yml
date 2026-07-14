@@ -1,0 +1,33 @@
+name: CI/CD VZeta
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  construir-y-subir:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Descargar el codigo del repo
+        uses: actions/checkout@v3
+
+      - name: Iniciar sesion en Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Construir y subir imagen App
+        uses: docker/build-push-action@v4
+        with:
+          context: ./app
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/myapp_container:latest
+
+      - name: Construir y subir imagen Proxy
+        uses: docker/build-push-action@v4
+        with:
+          context: ./proxy
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/mynginx_container:latest
